@@ -47,17 +47,6 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
-              <a class="dropdown-item" href="#">
-                <i class="bi bi-person-circle me-2"></i>Profile
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">
-                <i class="bi bi-gear me-2"></i>Settings
-              </a>
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
               <a class="dropdown-item text-danger" href="#">
                 <i class="bi bi-box-arrow-right me-2"></i>Logout
               </a>
@@ -156,7 +145,6 @@ const toggleSidebar = () => {
   height: 42px;
   width: 100%;
   border-radius: 8px;
-  background: var(--bg-light);
 }
 
 .search-input:focus {

@@ -14,25 +14,30 @@
           </li>
           <li class="ms-auto">
             <button class="btn-search" @click="showSearch = !showSearch">
-              <i class="icon">🔍</i>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
             </button>
           </li>
         </ul>
 
         <!-- Barra de búsqueda -->
         <div v-if="showSearch" class="search-bar">
-          <button class="btn-back" @click="showSearch = false">
-            <i class="icon">←</i>
-          </button>
+          <button class="btn-back" @click="showSearch = false">←</button>
           <input
             v-model="searchQuery"
             type="text"
             class="form-control"
             placeholder="Search by user or message"
           />
-          <button class="btn-search-submit">
-            <i class="icon">🔍</i>
-          </button>
         </div>
       </div>
 
@@ -42,47 +47,29 @@
           v-for="ticket in filteredTickets"
           :key="ticket.id"
           class="ticket-item"
-          :class="{ current: selectedTicket?.id === ticket.id, 'is-unread': ticket.unread }"
+          :class="{ current: selectedTicket?.id === ticket.id }"
           @click="selectTicket(ticket)"
         >
           <div class="ticket-avatar">
-            <div
-              v-if="ticket.avatar"
-              class="avatar"
-              :style="{ backgroundImage: `url(${ticket.avatar})` }"
-            ></div>
-            <div v-else class="avatar avatar-initials" :class="`bg-${ticket.color}`">
-              {{ ticket.initials }}
+            <img v-if="ticket.avatar" :src="ticket.avatar" :alt="ticket.name" />
+            <div v-else class="avatar-placeholder">
+              {{
+                ticket.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .substring(0, 2)
+              }}
             </div>
           </div>
 
           <div class="ticket-info">
             <div class="ticket-header">
-              <div class="ticket-sender">
-                <div class="name">{{ ticket.name }}</div>
-                <div v-if="ticket.priority" class="label-dot" :class="`bg-${ticket.priority}`"></div>
-              </div>
-              <div class="ticket-meta">
-                <div v-if="ticket.hasAttachment" class="attachment-icon">📎</div>
-                <div class="date">{{ ticket.date }}</div>
-              </div>
+              <div class="name">{{ ticket.name }}</div>
+              <div class="date">{{ ticket.date }}</div>
             </div>
-
-            <div class="ticket-content">
-              <div class="ticket-text">
-                <h6 class="title">{{ ticket.subject }}</h6>
-                <p>{{ ticket.preview }}</p>
-              </div>
-              <div class="ticket-labels">
-                <div v-if="ticket.unread" class="unread-badge">
-                  <span class="badge">{{ ticket.unread }}</span>
-                </div>
-                <div class="star-icon" @click.stop="toggleStar(ticket)">
-                  <span v-if="ticket.starred">⭐</span>
-                  <span v-else>☆</span>
-                </div>
-              </div>
-            </div>
+            <div class="ticket-subject">{{ ticket.subject }}</div>
+            <div class="ticket-preview">{{ ticket.preview }}</div>
           </div>
         </div>
       </div>
@@ -91,137 +78,59 @@
     <!-- Panel de conversación -->
     <div
       class="conversation-panel"
-      :class="{ 'show-profile': showProfile, 'mobile-visible': selectedTicket }"
+      :class="{ 'mobile-visible': selectedTicket }"
     >
       <div v-if="selectedTicket" class="conversation-content">
         <!-- Header del ticket -->
         <div class="conversation-header">
           <button class="btn-back d-lg-none" @click="selectedTicket = null">
-            <i class="icon">←</i>
+            ←
           </button>
-
-          <h4 class="title d-none d-lg-block">{{ selectedTicket.subject }}</h4>
-
-          <div class="header-meta">
-            <div class="d-none d-lg-block">
-              <div class="tag-label">
-                <i class="icon">🚩</i>
-                <span>Technical Problem</span>
-              </div>
-            </div>
-
-            <div class="header-actions">
-              <button class="btn btn-sm btn-outline">
-                <i class="icon">✓</i>
-                <span>Mark as Closed</span>
-              </button>
-
-              <button class="btn-icon d-lg-none" @click="showProfile = !showProfile">
-                <i class="icon">ℹ</i>
-              </button>
-
-              <div class="dropdown">
-                <button class="btn-icon" @click="showMenu = !showMenu">
-                  <i class="icon">⋮</i>
-                </button>
-                <div v-if="showMenu" class="dropdown-menu">
-                  <a href="#">Assign To Member</a>
-                  <a href="#">Move to Archive</a>
-                  <a href="#">Mark as Close</a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button class="btn-toggle-profile" @click="showProfile = !showProfile">
-            <i class="icon">←</i>
-          </button>
-        </div>
-
-        <!-- Título móvil -->
-        <div class="conversation-header-mobile d-lg-none">
-          <h4 class="title">{{ selectedTicket.subject }}</h4>
-          <div class="tag-label">
-            <i class="icon">🚩</i>
-            <span>Technical Problem</span>
+          <div class="header-info">
+            <h4 class="title">{{ selectedTicket.subject }}</h4>
+            <span class="subtitle">
+              <i class="fa-solid fa-flag"></i>
+              Technical problem
+            </span>
           </div>
         </div>
 
         <!-- Mensajes -->
         <div class="messages-container">
-          <div v-for="(message, index) in selectedTicket.messages" :key="index" class="message-item">
-            <div v-if="message.type === 'message'" class="message-box">
-              <div class="message-header">
-                <div class="user-info">
-                  <div class="user-avatar" :class="`bg-${message.color}`">
-                    {{ message.initials }}
-                  </div>
-                  <div class="user-name">
-                    {{ message.sender }}
-                    <span v-if="message.isYou">(You)</span>
-                  </div>
-                </div>
-                <div class="message-date">{{ message.date }}</div>
-              </div>
-
-              <div class="message-body">
-                <div class="message-text">
-                  <p v-for="(text, i) in message.text" :key="i">{{ text }}</p>
-                </div>
-
-                <!-- Archivos adjuntos -->
-                <div v-if="message.attachments" class="attachments">
-                  <div class="attachments-list">
-                    <div
-                      v-for="(file, i) in message.attachments"
-                      :key="i"
-                      class="attachment-item"
-                    >
-                      <a href="#" class="download">
-                        <i class="icon">🖼️</i>
-                        <span>{{ file }}</span>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="attachments-footer">
-                    <span>{{ message.attachments.length }} files attached</span>
-                    <a href="#" class="download-all">
-                      <i class="icon">⬇</i>
-                      <span>Download All</span>
-                    </a>
-                  </div>
-                </div>
-
-                <div v-if="message.repliedBy" class="replied-by">
-                  Replied by <span>{{ message.repliedBy }}</span> at {{ message.time }}
-                </div>
+          <div
+            v-for="(message, index) in selectedTicket.messages"
+            :key="index"
+            class="message-item"
+          >
+            <div class="message-avatar">
+              <img
+                v-if="message.avatar"
+                :src="message.avatar"
+                :alt="message.sender"
+              />
+              <div
+                v-else
+                class="avatar-placeholder"
+                :class="{ 'is-support': message.isSupport }"
+              >
+                {{
+                  message.sender
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .substring(0, 2)
+                }}
               </div>
             </div>
 
-            <div v-else-if="message.type === 'note'" class="message-box note">
+            <div class="message-content">
               <div class="message-header">
-                <div class="user-info">
-                  <div class="user-avatar bg-purple">{{ message.initials }}</div>
-                  <div class="user-name">
-                    {{ message.sender }} <span>added a note</span>
-                  </div>
-                </div>
-                <div class="message-date">{{ message.date }}</div>
+                <span class="sender">{{ message.sender }}</span>
+                <span v-if="message.isSupport" class="badge-you">(You)</span>
+                <span class="time">{{ message.time }}</span>
               </div>
               <div class="message-body">
-                <div class="message-text note-text">
-                  <p>{{ message.text }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div v-else-if="message.type === 'meta'" class="message-meta">
-              <div class="meta-info">
-                <strong v-if="message.date">{{ message.date }}</strong>
-                <span v-else>
-                  <span class="who">{{ message.who }}</span> assigned user:
-                  <span class="whom">{{ message.whom }}</span> at {{ message.time }}
-                </span>
+                {{ message.text }}
               </div>
             </div>
           </div>
@@ -230,38 +139,31 @@
         <!-- Formulario de respuesta -->
         <div class="reply-form">
           <div class="reply-header">
-            <ul class="reply-tabs">
-              <li :class="{ active: replyTab === 'reply' }" @click="replyTab = 'reply'">
-                <a href="#">Reply</a>
-              </li>
-              <li :class="{ active: replyTab === 'note' }" @click="replyTab = 'note'">
-                <a href="#">Private Note</a>
-              </li>
-            </ul>
-            <div class="reply-as">
-              <div class="title">Reply as:</div>
-              <div class="user-avatar xs bg-purple">IH</div>
-            </div>
+            <button
+              class="tab-btn"
+              :class="{ active: replyTab === 'reply' }"
+              @click="replyTab = 'reply'"
+            >
+              Reply
+            </button>
           </div>
 
           <div class="reply-editor">
             <textarea
               v-model="replyMessage"
               class="form-control"
-              :placeholder="replyTab === 'reply' ? 'Hello' : 'Type your private note...'"
+              placeholder="Hello"
+              rows="4"
             ></textarea>
 
-            <div class="reply-tools">
-              <div class="tools-actions">
-                <button class="btn btn-primary" @click="sendReply">
-                  {{ replyTab === 'reply' ? 'Reply' : 'Add Note' }}
-                </button>
-                <button class="btn-icon" title="Template">🔖</button>
-                <button class="btn-icon" title="Attachment">📎</button>
-                <button class="btn-icon" title="Emoji">😊</button>
-                <button class="btn-icon" title="Image">🖼️</button>
+            <div class="reply-actions">
+              <button class="btn-primary" @click="sendReply">Reply</button>
+              <div class="reply-tools">
+                <i class="fa-solid fa-hashtag"></i>
+                <i class="fa-solid fa-paperclip"></i>
+                <i class="fa-regular fa-face-smile"></i>
+                <i class="fa-solid fa-image"></i>
               </div>
-              <button class="btn-icon">⋮</button>
             </div>
           </div>
         </div>
@@ -270,89 +172,20 @@
       <!-- Panel sin selección -->
       <div v-else class="no-selection">
         <div class="empty-state">
-          <i class="icon-large">💬</i>
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            ></path>
+          </svg>
           <h5>Select a conversation</h5>
           <p>Choose a support ticket from the list to view the conversation</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sidebar de perfil -->
-    <div class="profile-sidebar" :class="{ visible: showProfile }">
-      <div v-if="selectedTicket" class="profile-content">
-        <div class="profile-card">
-          <div class="profile-header">
-            <div class="user-avatar lg bg-primary">{{ selectedTicket.initials }}</div>
-            <div class="user-info">
-              <h5>{{ selectedTicket.name }}</h5>
-              <span class="sub-text">Customer</span>
-            </div>
-            <button class="btn-icon">⋮</button>
-          </div>
-
-          <div class="profile-stats">
-            <div class="stat-item">
-              <span class="amount">23</span>
-              <span class="sub-text">Total Order</span>
-            </div>
-            <div class="stat-item">
-              <span class="amount">20</span>
-              <span class="sub-text">Complete</span>
-            </div>
-            <div class="stat-item">
-              <span class="amount">3</span>
-              <span class="sub-text">Progress</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-section">
-          <h6 class="section-title">User Information</h6>
-          <ul class="contact-list">
-            <li>
-              <i class="icon">✉️</i>
-              <span>{{ selectedTicket.email || 'info@example.com' }}</span>
-            </li>
-            <li>
-              <i class="icon">📞</i>
-              <span>+1234567890</span>
-            </li>
-            <li>
-              <i class="icon">📍</i>
-              <span>San Francisco, CA 94851</span>
-            </li>
-          </ul>
-        </div>
-
-        <div class="profile-section">
-          <h6 class="section-title">Additional</h6>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="sub-text">Ref ID:</span>
-              <span>TID-049583</span>
-            </div>
-            <div class="info-item">
-              <span class="sub-text">Requested:</span>
-              <span>{{ selectedTicket.name }}</span>
-            </div>
-            <div class="info-item">
-              <span class="sub-text">Status:</span>
-              <span class="status-open">Open</span>
-            </div>
-            <div class="info-item">
-              <span class="sub-text">Last Reply:</span>
-              <span>{{ selectedTicket.name }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-section">
-          <h6 class="section-title">Assigned Account</h6>
-          <div class="assigned-users">
-            <div class="user-avatar sm bg-purple">IH</div>
-            <div class="user-avatar sm bg-pink">ST</div>
-            <div class="user-avatar sm bg-gray">SI</div>
-          </div>
         </div>
       </div>
     </div>
@@ -360,140 +193,100 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from "vue";
 
 const filters = [
-  { value: 'active', label: 'Active' },
-  { value: 'closed', label: 'Closed' },
-  { value: 'starred', label: 'Stared' },
-  { value: 'all', label: 'All' }
+  { value: "active", label: "Active" },
+  { value: "closed", label: "Closed" },
+  { value: "all", label: "All" },
 ];
 
-const activeFilter = ref('active');
+const activeFilter = ref("active");
 const showSearch = ref(false);
-const searchQuery = ref('');
+const searchQuery = ref("");
 const selectedTicket = ref(null);
-const showProfile = ref(false);
-const showMenu = ref(false);
-const replyTab = ref('reply');
-const replyMessage = ref('');
+const replyTab = ref("reply");
+const replyMessage = ref("");
 
 const tickets = ref([
   {
     id: 1,
-    name: 'Abu Bin Ishtiyak',
-    initials: 'AB',
-    color: 'blue',
-    subject: 'Unable to select currency when order.',
-    preview: 'Hello team, I am facing problem as i can not select currency on buy order page.',
-    date: '12 Jan',
-    hasAttachment: true,
-    priority: 'pink',
-    starred: false,
-    unread: 0,
-    email: 'abu@example.com',
+    name: "Darien Umaña",
+    avatar: null,
+    subject: "Problem with Product",
+    preview: "Hello team, I am facing problem as i can not select",
+    date: "Today",
     messages: [
       {
-        type: 'message',
-        sender: 'Abu Bin Ishtiyak',
-        initials: 'AB',
-        color: 'blue',
-        date: '14 Jan, 2020',
-        text: [
-          'Hello team,',
-          'I am facing problem as i can not select currency on buy order page. Can you guys let me know what i am doing doing wrong? Please check attached files.',
-          'Thank you\nIshityak'
-        ],
-        attachments: ['error-show-On-order.jpg', 'full-page-error.jpg']
+        sender: "Darien Umaña",
+        avatar: null,
+        text: "Hello team, I am facing problem as i can not select currency on buy order page. Can you help me?",
+        time: "10:30 AM",
+        isSupport: false,
       },
       {
-        type: 'message',
-        sender: 'Support Team',
-        initials: 'ST',
-        color: 'pink',
-        date: '14 Jan, 2020',
-        isYou: true,
-        text: [
-          'Hello Ishtiyak,',
-          'We are really sorry to hear that, you have face an unexpected experience. Our team urgently look this matter and get back to you asap.',
-          'Thank you very much.'
-        ],
-        repliedBy: 'Iliash Hossain',
-        time: '11:32 AM'
+        sender: "Support team",
+        avatar: null,
+        text: "Hello Darien, i hope you're doing well!!\n\nHow can i help you?",
+        time: "10:45 AM",
+        isSupport: true,
       },
-      {
-        type: 'meta',
-        who: 'Iliash Hossian',
-        whom: 'Saiful Islam',
-        time: '14 Jan, 2020 at 11:34 AM'
-      },
-      {
-        type: 'note',
-        sender: 'Iliash Hossain',
-        initials: 'IH',
-        date: '14 Jan, 2020',
-        text: 'Devement Team need to check out the issues.'
-      },
-      {
-        type: 'meta',
-        date: '15 January 2020'
-      },
-      {
-        type: 'message',
-        sender: 'Support Team',
-        initials: 'ST',
-        color: 'pink',
-        date: '15 Jan, 2020',
-        isYou: true,
-        text: [
-          'Hello Ishtiyak,',
-          'Thanks for waiting for us. Our team solved the issues. So check now on our website. Hopefuly you can order now.',
-          'Thank you very much once again.'
-        ],
-        repliedBy: 'Noor Parvez',
-        time: '11:32 AM'
-      }
-    ]
+    ],
   },
   {
     id: 2,
-    name: 'Jackelyn Dugas',
-    initials: 'JD',
+    name: "Darien Umaña",
     avatar: null,
-    subject: 'Have not received bitcoin yet.',
-    preview: 'Hey! I recently bitcoin from you. But still have not received yet.',
-    date: '15 Jan',
-    starred: true,
-    unread: 0,
-    messages: []
+    subject: "Problem with Product",
+    preview: "Hello team, I am facing problem as i can not select",
+    date: "Yesterday",
+    messages: [],
   },
   {
     id: 3,
-    name: 'Mayme Johnston',
-    initials: 'MJ',
-    color: 'purple',
-    subject: 'I can not submit kyc application',
-    preview: 'Hello support! I can not upload my documents on kyc application.',
-    date: '11 Jan',
-    unread: 2,
-    starred: false,
-    messages: []
-  }
+    name: "Darien Umaña",
+    avatar: null,
+    subject: "Problem with Product",
+    preview: "Hello team, I am facing problem as i can not select",
+    date: "2 days ago",
+    messages: [],
+  },
+  {
+    id: 4,
+    name: "Darien Umaña",
+    avatar: null,
+    subject: "Problem with Product",
+    preview: "Hello team, I am facing problem as i can not select",
+    date: "3 days ago",
+    messages: [],
+  },
+  {
+    id: 5,
+    name: "Darien Umaña",
+    avatar: null,
+    subject: "Problem with Product",
+    preview: "Hello team, I am facing problem as i can not select",
+    date: "1 week ago",
+    messages: [],
+  },
 ]);
 
+onMounted(() => {
+  if (tickets.value.length > 0) {
+    selectedTicket.value = tickets.value[0];
+  }
+});
 const filteredTickets = computed(() => {
   let filtered = tickets.value;
 
-  if (activeFilter.value === 'starred') {
-    filtered = filtered.filter(t => t.starred);
-  } else if (activeFilter.value === 'closed') {
+  if (activeFilter.value === "closed") {
     filtered = [];
   }
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
-      t =>
+      (t) =>
         t.name.toLowerCase().includes(query) ||
         t.subject.toLowerCase().includes(query) ||
         t.preview.toLowerCase().includes(query)
@@ -503,61 +296,56 @@ const filteredTickets = computed(() => {
   return filtered;
 });
 
-const selectTicket = ticket => {
+const selectTicket = (ticket) => {
   selectedTicket.value = ticket;
-  showProfile.value = window.innerWidth >= 1200;
-};
-
-const toggleStar = ticket => {
-  ticket.starred = !ticket.starred;
 };
 
 const sendReply = () => {
   if (!replyMessage.value.trim()) return;
 
   const newMessage = {
-    type: replyTab.value === 'reply' ? 'message' : 'note',
-    sender: 'Support Team',
-    initials: 'ST',
-    color: 'pink',
-    date: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
-    isYou: true,
-    text: [replyMessage.value]
+    sender: "Support team",
+    avatar: null,
+    text: replyMessage.value,
+    time: new Date().toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    isSupport: true,
   };
 
   selectedTicket.value.messages.push(newMessage);
-  replyMessage.value = '';
+  replyMessage.value = "";
 };
 </script>
 
 <style scoped>
 .support-container {
   display: flex;
-  height: calc(100vh - 100px);
-  background: #f7f9fc;
+  height: calc(100vh - 140px);
+  background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
-/* ===== SIDEBAR DE MENSAJES ===== */
+/* ===== SIDEBAR ===== */
 .messages-sidebar {
-  width: 360px;
-  background: white;
-  border-right: 1px solid #e5e9f2;
+  width: 380px;
+  border-right: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease;
 }
 
 .sidebar-header {
-  padding: 1rem;
-  border-bottom: 1px solid #e5e9f2;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #e3e5ee;
 }
 
 .filter-menu {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -566,7 +354,7 @@ const sendReply = () => {
 
 .filter-menu li {
   cursor: pointer;
-  padding: 0.5rem 0;
+  padding-bottom: 0.5rem;
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
 }
@@ -579,11 +367,11 @@ const sendReply = () => {
   text-decoration: none;
   color: #64748b;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .filter-menu li.active a {
-  color: #6366f1;
+  color: #1e293b;
 }
 
 .btn-search {
@@ -592,20 +380,22 @@ const sendReply = () => {
   cursor: pointer;
   padding: 0.25rem;
   color: #64748b;
+  display: flex;
+  align-items: center;
 }
 
 .search-bar {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-items: center;
   margin-top: 1rem;
 }
 
 .search-bar .form-control {
   flex: 1;
-  border: 1px solid #e5e9f2;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
-  padding: 0.5rem 0.75rem;
+  padding: 0.625rem 0.875rem;
   font-size: 0.875rem;
 }
 
@@ -614,6 +404,8 @@ const sendReply = () => {
   border: none;
   cursor: pointer;
   color: #64748b;
+  font-size: 1.25rem;
+  padding: 0.25rem 0.5rem;
 }
 
 /* Lista de tickets */
@@ -624,8 +416,8 @@ const sendReply = () => {
 
 .ticket-item {
   display: flex;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
   cursor: pointer;
   border-bottom: 1px solid #f1f5f9;
   transition: background 0.2s;
@@ -636,45 +428,31 @@ const sendReply = () => {
 }
 
 .ticket-item.current {
-  background: #f1f5f9;
+  background: #f0f4ff;
   border-left: 3px solid #6366f1;
 }
 
-.ticket-item.is-unread {
-  background: #f0f9ff;
+.ticket-avatar {
+  flex-shrink: 0;
 }
 
-.ticket-avatar .avatar {
+.ticket-avatar img,
+.avatar-placeholder {
   width: 48px;
   height: 48px;
   border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  color: white;
-  background-size: cover;
-  background-position: center;
-}
-
-.avatar-initials {
   font-size: 0.875rem;
-}
-
-.bg-blue {
-  background-color: #3b82f6;
-}
-.bg-purple {
-  background-color: #a855f7;
-}
-.bg-pink {
-  background-color: #ec4899;
-}
-.bg-gray {
-  background-color: #6b7280;
-}
-.bg-primary {
-  background-color: #6366f1;
+  color: white;
+  text-transform: uppercase;
 }
 
 .ticket-info {
@@ -686,68 +464,36 @@ const sendReply = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.375rem;
 }
 
-.ticket-sender {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.ticket-sender .name {
+.ticket-header .name {
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: #1e293b;
 }
 
-.label-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.ticket-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
+.ticket-header .date {
+  font-size: 0.8125rem;
   color: #94a3b8;
 }
 
-.ticket-content .title {
+.ticket-subject {
+  font-weight: 600;
   font-size: 0.875rem;
-  font-weight: 600;
   color: #1e293b;
-  margin: 0 0 0.25rem 0;
+  margin-bottom: 0.25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.ticket-content p {
-  font-size: 0.8125rem;
+.ticket-preview {
+  font-size: 0.875rem;
   color: #64748b;
-  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.ticket-labels {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.unread-badge .badge {
-  background: #6366f1;
-  color: white;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
 }
 
 /* ===== PANEL DE CONVERSACIÓN ===== */
@@ -756,7 +502,6 @@ const sendReply = () => {
   display: flex;
   flex-direction: column;
   background: white;
-  position: relative;
 }
 
 .conversation-content {
@@ -766,236 +511,304 @@ const sendReply = () => {
 }
 
 .conversation-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e5e9f2;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
 }
 
-.conversation-header .title {
-  font-size: 1.125rem;
+.header-info .title {
+  font-size: 1.25rem;
   font-weight: 600;
   color: #1e293b;
-  margin: 0;
+  margin: 0 0 0.25rem 0;
 }
 
-.header-meta {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.tag-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.75rem;
-  background: #fef3c7;
-  border-radius: 6px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #92400e;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+.header-info .subtitle {
   font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s;
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
-.btn-outline {
-  border: 1px solid #e5e9f2;
-  color: #64748b;
-}
-
-.btn-outline:hover {
-  background: #f8fafc;
-}
-
-.btn-primary {
-  background: #6366f1;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #4f46e5;
-}
-
-.btn-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  color: #64748b;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-
-.btn-icon:hover {
-  background: #f8fafc;
-}
-
-.btn-toggle-profile {
-  display: none;
-}
-
-.conversation-header-mobile {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e5e9f2;
-}
-
-.conversation-header-mobile .title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
+.header-info .subtitle {
+  font-size: 0.875rem;
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 /* Mensajes */
 .messages-container {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
+  background: #f8fafc;
 }
 
 .message-item {
-  margin-bottom: 1.5rem;
-}
-
-.message-box {
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.message-box.note {
-  background: #fef3c7;
-}
-
-.message-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
+.message-avatar img,
+.message-avatar .avatar-placeholder {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  object-fit: cover;
+}
+
+.message-avatar .avatar-placeholder {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 0.75rem;
   color: white;
+  text-transform: uppercase;
 }
 
-.user-avatar.xs {
-  width: 24px;
-  height: 24px;
-  font-size: 0.625rem;
+.message-avatar .avatar-placeholder.is-support {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
-.user-avatar.sm {
-  width: 32px;
-  height: 32px;
-  font-size: 0.75rem;
+.message-content {
+  flex: 1;
+  min-width: 0;
 }
 
-.user-avatar.lg {
-  width: 64px;
-  height: 64px;
-  font-size: 1.25rem;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #1e293b;
-}
-
-.user-name span {
-  font-weight: 400;
-  color: #64748b;
-}
-
-.message-date {
-  font-size: 0.8125rem;
-  color: #94a3b8;
-}
-
-.message-text p {
-  margin: 0 0 0.75rem 0;
-  color: #475569;
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
-.message-text p:last-child {
-  margin-bottom: 0;
-}
-
-.note-text p {
-  color: #92400e;
-}
-
-.attachments {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e9f2;
-}
-
-.attachments-list {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-}
-
-.attachment-item .download {
+.message-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  text-decoration: none;
+  margin-bottom: 0.5rem;
+}
+
+.message-header .sender {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: #1e293b;
+}
+
+.badge-you {
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.message-header .time {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  margin-left: auto;
+}
+
+.message-body {
+  background: white;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  color: #475569;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Formulario de respuesta */
+.reply-form {
+  border-top: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  background: white;
+}
+
+.reply-header {
+  margin-bottom: 1rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  font-weight: 500;
+  font-size: 0.9375rem;
   color: #6366f1;
-  font-size: 0.875rem;
+  border-bottom: 2px solid #6366f1;
 }
 
-.attachments-footer {
+.reply-editor textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  resize: none;
+  font-family: inherit;
+  margin-bottom: 0.875rem;
+}
+
+.reply-editor textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.reply-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  font-size: 0.8125rem;
-  color: #64748b;
-  margin-top: 0.5rem;
+  gap: 1rem;
 }
 
-.replied-by {
-  margin-top: 0.5rem;
-  font-size: 0.8125rem;
-  color: #64748b;
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.625rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: background 0.2s;
 }
-.replied-by span {
-    font-weight: 600;
-    color: #1e293b;
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.reply-tools {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-tool {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #64748b;
+  font-size: 1.125rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.btn-tool:hover {
+  background: #f8fafc;
+}
+
+/* Estado vacío */
+.no-selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #f8fafc;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+}
+
+.empty-state svg {
+  color: #cbd5e1;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h5 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  color: #64748b;
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .support-container {
+    height: calc(100vh - 80px);
+  }
+
+  .messages-sidebar {
+    width: 320px;
+  }
+}
+
+@media (max-width: 767px) {
+  .support-container {
+    height: calc(100vh - 60px);
+  }
+
+  .messages-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 50;
+    background: white;
+  }
+
+  .messages-sidebar.mobile-hidden {
+    transform: translateX(-100%);
+  }
+
+  .conversation-panel.mobile-visible {
+    display: flex;
+  }
+
+  .conversation-header {
+    padding: 1rem;
+  }
+
+  .messages-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .reply-form {
+    padding: 1rem;
+  }
+}
+
+/* Scrollbar */
+.tickets-list::-webkit-scrollbar,
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tickets-list::-webkit-scrollbar-track,
+.messages-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.tickets-list::-webkit-scrollbar-thumb,
+.messages-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.tickets-list::-webkit-scrollbar-thumb:hover,
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.d-lg-none {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .d-lg-none {
+    display: block;
+  }
 }
 </style>

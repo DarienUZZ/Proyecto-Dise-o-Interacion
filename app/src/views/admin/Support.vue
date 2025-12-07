@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard">
     <!-- Page Title -->
-    <h1 class="page-title mb-4">Support</h1>
+    <h1 class="page-title mb-4">Support & Communication</h1>
     
     <!-- Componente de Chat de Soporte -->
     <SupportChat />
