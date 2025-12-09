@@ -32,8 +32,7 @@ ChartJS.register(
 
 // Datos del gráfico (quemados)
 const chartData = {
-  labels: ['Figma', 'Sketch', 'XD', 'PS', 'AI', 'Corel DRAW', 'InDesign', 'Canva', 'Webflow', 'Affinity', 'Marker', 'Figma'],
-  datasets: [
+labels: ['Hoodies', 'T-Shirts', 'Jackets', 'Pants', 'Shoes', 'Accessories', 'Shorts', 'Dresses', 'Sweaters', 'Jeans', 'Sportswear', 'Underwear'],  datasets: [
     {
       label: '2020',
       data: [80, 100, 40, 90, 60, 90, 70, 120, 90, 50, 70, 90],

@@ -445,7 +445,6 @@ const getStatusBadgeClass = (status) => {
 .add-order:hover {
   background-color: var(--primary-hover, #2563eb);
   color: white;
-  transform: translateY(-1px);
 }
 
 /* Table */

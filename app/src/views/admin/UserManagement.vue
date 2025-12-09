@@ -18,7 +18,7 @@
 
         <!-- Status Filter -->
         <select class="form-select status-filter" v-model="statusFilter">
-          <option value="">All Status</option>
+          <option value="">Status</option>
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
           <option value="Suspended">Suspended</option>
@@ -62,7 +62,7 @@
                       :alt="user.fullName"
                       class="user-avatar"
                     />
-                    <span class="fw-medium">{{ user.fullName }}</span>
+                    <span class="text-muted">{{ user.fullName }}</span>
                   </div>
                 </td>
                 <td class="text-muted">{{ user.email }}</td>
@@ -145,7 +145,7 @@ const users = ref([
     id: 1,
     fullName: "Darien Umaña Zúñiga",
     email: "dariumana04@gmail.com",
-    role: "Super Admin",
+    role: "Administrator",
     status: "Active",
     lastLogin: "2024-01-15 09:23:45",
     avatar:
@@ -155,7 +155,7 @@ const users = ref([
     id: 2,
     fullName: "Victor Salgado Martinez",
     email: "victorsm@gmail.com",
-    role: "Administrator",
+    role: "Seller",
     status: "Active",
     lastLogin: "2024-01-14 14:45:12",
     avatar:
@@ -325,9 +325,9 @@ const confirmDelete = (user) => {
 
 const getRoleBadgeClass = (role) => {
   const classes = {
-    "Super Admin": "badge-admin",
-    Administrator: "badge-manager",
-    Customer: "badge-editor",
+    Administrator: "badge-admin",
+    Seller: "badge-manager",
+    Customer: "badge-editor",    
   };
   return classes[role] || "badge-viewer";
 };
@@ -445,7 +445,6 @@ const formatDate = (dateString) => {
 .add-user:hover {
   background-color: var(--primary-hover, #2563eb);
   color: white;
-  transform: translateY(-1px);
 }
 
 /* Table */

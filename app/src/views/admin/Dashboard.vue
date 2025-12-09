@@ -94,7 +94,7 @@
                     </td>
                     <td>{{ order.date }}</td>
                     <td>
-                      <span class="badge bg-success">{{ order.status }}</span>
+                      <span class="badge badge-success">{{ order.status }}</span>
                     </td>
                     <td>{{ order.customer }}</td>
                     <td class="fw-semibold">{{ order.total }}</td>
@@ -167,10 +167,6 @@ const recentOrders = ref([
   overflow: hidden;
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
 .card-title {
   font-size: 1rem;
@@ -197,8 +193,14 @@ const recentOrders = ref([
   font-weight: 600;
   border-radius: 6px;
 }
+
+.badge-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: rgb(16, 185, 129);
+}
+
 .variation-orders {
-  color: var(--success-color, #38a169);
+  color: var(--success-color, #28a169);
   font-weight:500;
   font-style: normal;
 }

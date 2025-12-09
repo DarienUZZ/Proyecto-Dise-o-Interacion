@@ -1,8 +1,8 @@
 <template>
   <div class="sidebar" :class="{ 'sidebar-open': isOpen }">
     <div class="sidebar-header">
-      <h5 class="sidebar-title">{{ isOpen ? 'Administrator' : 'A' }}</h5>
-      
+      <h5 class="sidebar-title">{{ isOpen ? "Administrator" : "A" }}</h5>
+
       <!-- Botón de cerrar solo visible en móvil -->
       <button class="btn-close-sidebar" @click="handleClose">
         <i class="fas fa-times"></i>
@@ -10,17 +10,17 @@
     </div>
 
     <nav class="sidebar-nav">
-      <router-link 
-        v-for="item in menuItems" 
+      <router-link
+        v-for="item in menuItems"
         :key="item.path"
         :to="item.path"
         class="sidebar-item"
-        :class="{ 'active': $route.path === item.path }"
+        :class="{ active: $route.path === item.path }"
         @click="handleItemClick"
       >
         <i :class="item.icon"></i>
         <span class="sidebar-label">{{ item.label }}</span>
-        
+
         <!-- Tooltip para estado cerrado -->
         <div class="tooltip-sidebar">{{ item.label }}</div>
       </router-link>
@@ -29,39 +29,55 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
-import { useRoute } from 'vue-router'
+import { defineProps, defineEmits } from "vue";
+import { useRoute } from "vue-router";
 
-const route = useRoute()
+const route = useRoute();
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(["close"]);
 
 const handleClose = () => {
-  emit('close')
-}
+  emit("close");
+};
 
 const handleItemClick = () => {
   // Cerrar sidebar en móvil al hacer click en un item
   if (window.innerWidth <= 768) {
-    emit('close')
+    emit("close");
   }
-}
+};
 
 const menuItems = [
-  { path: '/admin/dashboard', icon: 'fas fa-th-large', label: 'Dashboard' },
-  { path: '/admin/products', icon: 'fas fa-box', label: 'Product Management' },
-  { path: '/admin/users', icon: 'fas fa-users', label: 'User Management' },
-  { path: '/admin/billing', icon: 'fa-solid fa-receipt', label: 'Billing & Sales' },
-  { path: '/admin/reports', icon: 'fas fa-chart-bar', label: 'Reports & Activity Log' },
-  { path: '/admin/support', icon: 'fa-solid fa-comment-dots', label: 'Support & Communication' },
-  { path: '/admin/roles', icon: 'fas fa-shield-alt', label: 'Roles & Permissions' }
-]
+  { path: "/admin/dashboard", icon: "fas fa-th-large", label: "Dashboard" },
+  { path: "/admin/products", icon: "fas fa-box", label: "Product Management" },
+  { path: "/admin/users", icon: "fas fa-users", label: "User Management" },
+  {
+    path: "/admin/billing",
+    icon: "fa-solid fa-receipt",
+    label: "Billing & Sales",
+  },
+  {
+    path: "/admin/reports",
+    icon: "fas fa-chart-bar",
+    label: "Reports & Activity Log",
+  },
+  {
+    path: "/admin/support",
+    icon: "fa-solid fa-comment-dots",
+    label: "Support & Communication",
+  },
+  {
+    path: "/admin/roles",
+    icon: "fas fa-shield-alt",
+    label: "Roles & Permissions",
+  },
+];
 </script>
 
 <style scoped>
@@ -136,6 +152,19 @@ const menuItems = [
   border: none;
   background: none;
   cursor: pointer;
+  margin: 0 0.5rem;
+  border-radius: 12px;
+}
+
+.sidebar-item.active {
+  background-color: white;
+  color: var(--primary-color, #8b5cf6);
+  border: 2px;
+  font-weight: 600;
+  padding: 0.75rem 0.875rem;
+  margin: 0 0.75rem;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  background-color: var(--primary-color, #8b5cf6);
 }
 
 .sidebar-item i {

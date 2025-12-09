@@ -28,8 +28,7 @@ ChartJS.register(
 
 // Datos del gráfico (quemados)
 const chartData = {
-  labels: ['Figma', 'Sketch', 'XD', 'PS', 'AI', 'CorelDRAW', 'InDesign', 'Canva', 'Webflow', 'Affinity', 'Marker', 'Figma'],
-  datasets: [
+labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],  datasets: [
     {
       label: '2020',
       data: [20, 50, 90, 95, 65, 10, 85, 10, 25, 50, 10, 70],

@@ -66,11 +66,11 @@
                       :alt="product.name"
                       class="product-img"
                     />
-                    <span class="fw-medium">{{ product.name }}</span>
+                    <span class="text-muted">{{ product.name }}</span>
                   </div>
                 </td>
                 <td class="text-muted">{{ product.sku }}</td>
-                <td class="fw-semibold">${{ product.price }}</td>
+                <td class="text-muted">${{ product.price }}</td>
                 <td>
                   <span class="badge" :class="getStockBadgeClass(product.stock)">
                     {{ product.stock }}
@@ -429,7 +429,6 @@ const confirmDelete = (product) => {
 .add-product:hover {
   background-color: var(--primary-hover, #2563eb);
   color: white;
-  transform: translateY(-1px);
 }
 
 /* Table */

@@ -15,6 +15,7 @@ import BillingSalesViewOrder from "../views/admin/BillingSalesViewOrder.vue";
 import Reports from "../views/admin/Reports.vue";
 import Support from "../views/admin/Support.vue";
 import RolesPermissions from "../views/admin/RolesPermissions.vue";
+import AddRole from "../views/admin/RolesPermissionsAddRole.vue";
 
 const routes = [
   {
@@ -86,6 +87,11 @@ const routes = [
         path: "roles",
         name: "RolesPermissions",
         component: RolesPermissions,
+      },
+      {
+        path: "roles/add",
+        name: "AddRole",
+        component: AddRole,
       },
     ],
   },
