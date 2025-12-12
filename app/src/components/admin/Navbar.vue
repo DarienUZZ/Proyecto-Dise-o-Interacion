@@ -36,18 +36,19 @@
             aria-expanded="false"
           >
             <img
-              src="https://ui-avatars.com/api/?name=Darien+Umana&background=8b5cf6&color=fff"
+              :src="userAvatar"
               alt="User"
               class="profile-img"
             />
             <div class="profile-info">
-              <span class="profile-role">Administrator</span>
-              <span class="profile-name">Darien Umaña</span>
+              <span class="profile-role">{{ userRole }}</span>
+              <span class="profile-name">{{ userName }}</span>
             </div>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
+            <li><hr class="dropdown-divider" /></li>
             <li>
-              <a class="dropdown-item text-danger" href="#">
+              <a class="dropdown-item text-danger" href="#" @click.prevent="handleLogout">
                 <i class="bi bi-box-arrow-right me-2"></i>Logout
               </a>
             </li>
@@ -59,13 +60,62 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref, defineEmits, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { authService } from "../../stores/auth";
 
 const emit = defineEmits(["toggle-sidebar"]);
+const router = useRouter();
 const searchQuery = ref("");
+
+// Get current user data
+const currentUser = ref(null);
+
+onMounted(() => {
+  currentUser.value = authService.getCurrentUser();
+});
+
+// Computed properties for user data
+const userName = computed(() => {
+  return currentUser.value?.name || "User";
+});
+
+const userRole = computed(() => {
+  const role = currentUser.value?.role || "user";
+  return role.charAt(0).toUpperCase() + role.slice(1);
+});
+
+const userAvatar = computed(() => {
+  const name = currentUser.value?.name || "User";
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=8b5cf6&color=fff`;
+});
 
 const toggleSidebar = () => {
   emit("toggle-sidebar");
+};
+
+const handleProfile = () => {
+  console.log("View profile");
+  // router.push("/admin/profile");
+};
+
+const handleSettings = () => {
+  console.log("View settings");
+  // router.push("/admin/settings");
+};
+
+const handleLogout = () => {
+  // Confirm logout
+  if (confirm("Are you sure you want to logout?")) {
+    // Clear authentication
+    authService.logout();
+    
+    // Redirect to home/login
+    router.push("/");
+    
+    // Optional: Show success message
+    console.log("Logged out successfully");
+  }
 };
 </script>
 
@@ -246,6 +296,7 @@ const toggleSidebar = () => {
   border-radius: 6px;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
+  transition: background-color 0.2s ease;
 }
 
 .dropdown-item:hover {
@@ -254,6 +305,11 @@ const toggleSidebar = () => {
 
 .dropdown-item i {
   font-size: 1rem;
+}
+
+.dropdown-divider {
+  margin: 0.5rem 0;
+  border-color: var(--border-color);
 }
 
 /* Responsive */
